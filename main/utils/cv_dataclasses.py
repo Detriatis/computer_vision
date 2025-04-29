@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 from dataclasses import dataclass, field
+from torch.utils.data import Dataset, DataLoader
 from pathlib import Path 
+import torch
 
 @dataclass
 class ProcessedImages:
@@ -42,3 +44,26 @@ class Images:
         for part in parts: 
             result = result + part 
         return result 
+    
+class ImagesDataset(Dataset):
+    def __init__(self, imgs_obj: Images, transform=None, target_transform=None):
+        self.filepaths = imgs_obj.filepath
+        # Here we transpose the images to be (idx, C, H, W)
+        self.images = np.array(imgs_obj.imgs)
+        self.labels = np.array(imgs_obj.labels) - 1
+        self.transform = transform
+        self.target_transform = target_transform
+
+    def __len__(self):
+        return len(self.labels)
+    
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        label = self.labels[idx]
+        filepath = self.filepaths[idx] 
+        if self.transform:
+            image = self.transform(image)
+        if self.target_transform:
+            label = self.target_transform(label) 
+
+        return image, label 

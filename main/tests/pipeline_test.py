@@ -16,4 +16,3 @@ if __name__ == "__main__":
     img2 = cv2.drawKeypoints(img, kps, None, color=(0, 255, 0), flags=0)
     plt.imshow(img2)
     plt.show()
-

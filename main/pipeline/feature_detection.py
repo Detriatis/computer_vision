@@ -28,11 +28,15 @@ def calc_features_desc(imgs: Images, parameters: dict, normaliser, detector = No
                                  parameters['normaliser'], 
                                  img)
      
-        if detector: 
-            kps, descs = compute_descriptors(detector, img)
-        else: 
+        if not descriptor and detector: 
+            kps, descs = detector.detectAndCompute(img, mask=None)
+        if descriptor and not detector:
+            # We use dense keypoints as an alternative to feature detection 
             kp = dense_keypoints(img, **parameters['keypoints'])
             kp, des = descriptor.compute(img, kp)
+        if descriptor and detector:
+            kp = detector.detect(img, mask=None)
+            kp, des = descriptor.compute(img, kp) 
         
         all_norm_imgs.append(norm_img)
         all_feats.append(kps)
