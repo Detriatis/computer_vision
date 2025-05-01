@@ -7,7 +7,6 @@ from main.utils.cv_dataclasses import Images
 
 def load_image(filepath: Path, flag = cv2.IMREAD_COLOR_BGR):
     img = cv2.imread(filepath, flags = flag)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img 
 
 def load_labeled_images(directorypath: Path, train: bool = True) -> Images:

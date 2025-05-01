@@ -10,8 +10,6 @@ import torchvision.transforms as transforms
 import torch.nn as nn 
 import torch.nn.functional as F
 import torch.optim as optim
-
-
 from torch import nn
 
 CIFAR10 = "/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/cifar-10/"

@@ -30,14 +30,18 @@ def k_means_clustering(vectors, k, max_iters=1000) -> tuple[np.ndarray, dict]:
     clusters = {i: vectors[assignments == i] for i in range(k)}
     return means, clusters
 
-def bag_of_words(imgs: ProcessedImages, k, max_iters, normalise: bool=True, means = None) -> tuple[np.ndarray, np.ndarray]:
+def bag_of_words(imgs: ProcessedImages, k, max_iters, subsamples: int = 0, normalise: bool=True, means = None) -> tuple[np.ndarray, np.ndarray]:
     descs = imgs.descriptors
     n_images = len(imgs.descriptors)
-
     full_descs = np.concat(descs)
     if imgs.train: 
         print('Beginning Clustering')
-        means, _ = k_means_clustering(full_descs, k, max_iters)
+        if subsamples and subsamples < len(full_descs):
+            sub_descs_idx = np.random.choice(len(full_descs), size=subsamples, replace=False)
+            sub_descs = full_descs[sub_descs_idx]
+            means, _ = k_means_clustering(sub_descs, k, max_iters)
+        else: 
+            means, _ = k_means_clustering(full_descs, k, max_iters)
     else:
         try:
             assert means is not None
