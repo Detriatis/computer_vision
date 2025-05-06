@@ -1,15 +1,19 @@
 import cv2
 
 class dense():
-
-    def create(self, img, step_size, kp_size):
-        self.img = img 
+    def __init__(self, step_size=5, kp_size=1):
         self.step_size = step_size
         self.kp_size = kp_size 
 
-    def detect(self):
+    @classmethod
+    def create(self, step_size=5, kp_size=1):
+        self.step_size = step_size
+        self.kp_size = kp_size
+        return dense(step_size=step_size, kp_size=kp_size)
+    
+    def detect(self, img, mask=None):
         # Assume greyscale
-        h, w = self.img.shape
+        h, w = img.shape
         kps = [
             cv2.KeyPoint(x, y, self.kp_size) 
                 for y in range(0, h, self.step_size)
@@ -30,10 +34,10 @@ _DETECTOR_CREATES = {
 
 _DETECTOR_CREATES['dense'] = dense 
 
-def get_cv2_detector(name: str, **kwargs):
+def get_cv2_detector(name: str):
     func = _DETECTOR_CREATES.get(name.lower())
     if func is None: 
-        raise ValueError(f"No OpenCV detector named {name!r}.\n"
-                         f"Available Detectors:\n----\n{"\n".join(list(_DETECTOR_CREATES))}")
+        msg = f"Available Detectors:\n----\n{"\n".join(list(_DETECTOR_CREATES))}"
+        raise ValueError(f"No OpenCV detector named {name!r}.\n{str(msg)}")
     
-    return func(**kwargs)
+    return func

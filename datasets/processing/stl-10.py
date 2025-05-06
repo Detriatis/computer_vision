@@ -157,6 +157,5 @@ if __name__ == "__main__":
 
     save_dic(classes, OUTPUT_DIR / 'class_index')
     # save images to disk
-    raise 
     save_images(train_images, train_labels, OUTPUT_DIR / 'train')  
-    save_images(train_images, train_labels, OUTPUT_DIR / 'test')  
+    save_images(test_images, test_labels, OUTPUT_DIR / 'test')  
