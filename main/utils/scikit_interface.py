@@ -180,20 +180,22 @@ class BoWTransformer(BaseEstimator, TransformerMixin):
 
 class SKlearnPyTorchClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, net_cls: nn.Module, net_kwargs: dict = {}, 
-                 optimizer_cls = optim.SGD, optimizer_kwargs: dict = {},
+                 optimizer_cls = optim.SGD, optim_kwargs: dict = {},
                  criterion=nn.CrossEntropyLoss(),
-                 epochs=10, batch_size=32, device='cpu',
+                 epochs=10, batch_size=32, device='cuda',
                  transform = None, image_size: tuple[int, int] = (32, 32)):
         
         self.net_cls = net_cls
         self.net_kwargs = net_kwargs
         self.optimizer_cls = optimizer_cls
-        self.optimizer_kwargs = optimizer_kwargs
+        self.optim_kwargs = optim_kwargs 
         self.criterion = criterion
         self.epochs = epochs
         self.batch_size = batch_size
         self.transform = transform
         self.image_size = image_size
+        self.x_test = None 
+        self.y_test = None 
         
         if not device:
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -226,7 +228,7 @@ class SKlearnPyTorchClassifier(BaseEstimator, ClassifierMixin):
         self.model = self.net_cls(**self.net_kwargs).to(self.device)
         self.optimizer = self.optimizer_cls(
             self.model.parameters(),
-            **self.optimizer_kwargs,
+            **self.optim_kwargs,
         )
 
     def fit(self, X, y): 
@@ -255,8 +257,10 @@ class SKlearnPyTorchClassifier(BaseEstimator, ClassifierMixin):
                 cumulative_loss += batch_loss
                 all_labels.append(yb.cpu())
                 
-            print(f'Cumulative Loss for Epoch: {epoch} of {self.epochs}: {cumulative_loss}')
+            print(f'Cumulative Loss for Epoch: {epoch + 1} of {self.epochs}: {cumulative_loss}')
+        
         self._cleanup_gpu()
+        
         return self
 
     def predict(self, X):

@@ -17,7 +17,7 @@ import torchvision.transforms as transforms
 import cv2
 
 
-def pipeline(clf, imgs: Images, row = None, bowtransformer = None, train: bool = True):
+def pipeline(clf, imgs: Images, row = None, bowtransformer = None, train: bool = True, test_imgs: Images = None):
     X = imgs.imgs
     if row is not None: 
         try: 
@@ -46,6 +46,8 @@ def pipeline(clf, imgs: Images, row = None, bowtransformer = None, train: bool =
      
     imagenormalizer = ImageNormalizer(norm_type=norm, alpha=0, beta=255, dtype=np.uint8, col=col).fit(imgs.imgs)
     X = imagenormalizer.transform(X)
+    if test_imgs:
+        x_test = imagenormalizer.transform(test_imgs.imgs)
 
     if not isinstance(clf, SKlearnPyTorchClassifier):  
         descriptorextractor = DescriptorExtractor(kp_algo=kp_algo, desc_algo=desc_algo).fit(X)
@@ -64,6 +66,10 @@ def pipeline(clf, imgs: Images, row = None, bowtransformer = None, train: bool =
         bows = np.expand_dims(X, -1)
     else: 
         bows = np.array(X)
+
+    if test_imgs:
+        clf.x_test = x_test 
+        clf.y_test  = np.array(test_imgs.labels)
     
     if train:
         clf.fit(bows, np.array(imgs.labels))
@@ -77,7 +83,6 @@ def class_label_assigments(labels, kps, accuracy_scores):
     if kps is not None: 
         for kp, label in zip(kps, labels):
             label_dic[str(label)]['n_keypoints'] += len(kp) 
-    
     for i, score in enumerate(accuracy_scores):
         label_dic[str(i)]['accuracy'] = score 
     return label_dic
@@ -99,12 +104,14 @@ if __name__ == '__main__':
     classifiers = {
             'rf' : RandomForestClassifier(),
             'knn' : KNeighborsClassifier(),
-            'cnn' : SKlearnPyTorchClassifier(NetSmaller, device='cuda', transform=transform, image_size = (96, 96)),
+            'split_cnn' : SKlearnPyTorchClassifier(NetSmaller, device='cuda', transform=transform, image_size = (96, 96)),
+            'classic_cnn' : SKlearnPyTorchClassifier(Net, device='cuda', transform=transform, image_size = (96, 96)),
     }
     
     accuracy = get_sklearn_metric('accuracy')
     
     test_bool = False 
+    quick_test = True 
     
     feature_params = {} 
     norm_params = {} 
@@ -124,17 +131,20 @@ if __name__ == '__main__':
         accuracy = get_sklearn_metric('accuracy')
         
         classifier = row['classifier']  
-        if classifier == 'cnn':
+        if str(classifier).endswith('cnn'):
             imgs.labels = np.array(imgs.labels) - 1
             test_imgs.labels = np.array(test_imgs.labels) - 1
 
         classifier_params =  eval(row['params'], {'OrderedDict' : OrderedDict})
-        
+
         clf = classifiers[classifier]
+        if quick_test:
+            classifier_params['epochs'] = 1
         clf = clf.set_params(**classifier_params)        
         
-        if not test_bool: 
-            clf, train_preds, bowtransformer, _ = pipeline(clf, imgs, row, train=True)    
+        if not test_bool:
+            # TRAINING AND FITTING ---- 
+            clf, train_preds, bowtransformer, _ = pipeline(clf, imgs, row, train=True, test_imgs=test_imgs)    
             clf, test_preds, _, descriptorextractor =  pipeline(clf, test_imgs, row, bowtransformer=bowtransformer, train=False)
 
             if descriptorextractor:
@@ -154,7 +164,8 @@ if __name__ == '__main__':
 
             print(f'Score on training set {train_score} with classifier {classifier}')
             print(f'Score on testing set {test_score} with classifier {classifier}')
-            row['fullmodelaccuracy'] = accuracy
+            
+            row['fullmodelaccuracy'] = test_score
             row['index'] = i
             rows.append(row)
 
@@ -163,7 +174,9 @@ if __name__ == '__main__':
             outpath.mkdir(parents=True, exist_ok=True)
             results_df.to_csv(outpath / 'cnn_class_accuracy.csv', index=False)
             np.savetxt(outpath / "confusion_matrix.csv", cm, delimiter=",") 
-    
+        if quick_test:
+            break 
+
     rowsframe = pd.concat(rows, axis=1).T
     rowsframe.to_csv(outpath.parent / 'cnn_fullmodel.csv', index=False)
 

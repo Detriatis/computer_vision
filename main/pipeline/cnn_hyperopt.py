@@ -247,7 +247,7 @@ if __name__ == '__main__':
 
                     print(f'SAVING DATA iteration {i} of {iterations_total}')             
                     iterative_path = Path("/home/michaeldodds/Projects/manchester/computer_vision/results/hyperopt")
-                    iterative_path  = iterative_path / 'cnn_iterative_experiments2.csv'
+                    iterative_path  = iterative_path / 'cnn_iterative_experiments3.csv'
                     if iterative_path.exists():
                         df = pd.read_csv(iterative_path)
                         iterative_df = pd.concat([result_df, df])

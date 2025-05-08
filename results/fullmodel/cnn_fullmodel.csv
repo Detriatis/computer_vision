@@ -1,0 +1,2 @@
+params,mean_test_score,std_test_score,dataset,norm_type,colour,classifier,batch_size,epochs,channels,class_heads,kernel_width,lr,momentum,fullmodelaccuracy,index
+"OrderedDict({'batch_size': 4, 'epochs': 29, 'net__channels': 3, 'net__class_heads': 10, 'net__kernel_width': 3, 'optim__lr': 0.00030785590359397053, 'optim__momentum': 0.7649974872865359})",0.5812030871136696,0.0146659468374111,stl10,32,rgb,split_cnn,4.0,29.0,3.0,10.0,3.0,0.0003078559035939,0.7649974872865359,0.374125,0
