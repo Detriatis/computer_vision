@@ -71,12 +71,14 @@ from main.utils.cv2_interface import get_cv2_detector
 from main.pipeline.clustering import bag_of_words
 
 class ImageNormalizer(BaseEstimator, TransformerMixin):
-    def __init__(self, norm_type = cv2.NORM_MINMAX, alpha=0, beta=255, verbocity=0):
+    def __init__(self, norm_type = cv2.NORM_MINMAX, alpha=0, beta=255, verbocity=0, dtype=np.uint8, col=cv2.COLOR_BGR2GRAY):
         self.norm_type = norm_type
         self.alpha = alpha
         self.beta = beta
         self.verbocity = verbocity 
-    
+        self.dtype = dtype
+        self.col = col
+
     def fit(self, X, y=None):
         return self
 
@@ -85,22 +87,21 @@ class ImageNormalizer(BaseEstimator, TransformerMixin):
             print(f'Transforming data with normaliser {self.norm_type}')
         out = []
         for img in X:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            if img.shape != (96, 96):
-                img = cv2.resize(img, (96, 96), interpolation=cv2.INTER_LINEAR)
-            if self.norm_type == cv2.NORM_MINMAX:
-                norm_img = cv2.normalize(img, None, alpha=self.alpha, beta=self.beta, norm_type=self.norm_type)
-            elif self.norm_type == cv2.NORM_L1:
-                norm_img = cv2.normalize(img, None, alpha=self.alpha, beta=self.beta, norm_type=self.norm_type, dtype=cv2.CV_32F)
-            elif self.norm_type == cv2.NORM_L2:
-                norm_img = cv2.normalize(img, None, alpha=self.alpha, beta=self.beta, norm_type=self.norm_type, dtype=cv2.CV_32F)
-            elif self.norm_type == 'eq_hist':
-                norm_img = cv2.equalizeHist(img, None)
-
-            try:  
-                out.append(norm_img)
-            except: 
-                raise TypeError(f'{self.norm_type}')
+            if self.col is not None: 
+                img = cv2.cvtColor(img, self.col)
+                if img.shape != (96, 96):
+                    img = cv2.resize(img, (96, 96), interpolation=cv2.INTER_LINEAR)
+                if self.norm_type == cv2.NORM_MINMAX:
+                    norm_img = cv2.normalize(img, None, alpha=self.alpha, beta=self.beta, norm_type=self.norm_type, dtype=cv2.CV_32F)
+                elif self.norm_type == 'eq_hist':
+                    norm_img = cv2.equalizeHist(img, None)
+                    norm_img = cv2.normalize(img, None, alpha=self.alpha, beta=self.beta, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+                try:  
+                    out.append(self.dtype(norm_img))
+                except: 
+                    raise TypeError(f'{self.norm_type}')
+            else: 
+                out.append(self.dtype(img))
         if self.verbocity > 1:
             print('The transformed image', out[0])
         return out
@@ -111,6 +112,8 @@ class DescriptorExtractor(BaseEstimator, TransformerMixin):
         self.desc_algo = desc_algo 
         self.detector_params = detector_params
         self.verbocity = verbocity
+        self.kps = None
+        self.descs = None 
 
     def fit(self, X, y=None):
         return self 
@@ -131,7 +134,9 @@ class DescriptorExtractor(BaseEstimator, TransformerMixin):
             kp, desc = descriptor.compute(img, kp) 
             
             kps.append(kp)
-            descs.append(desc) 
+            descs.append(desc)
+        self.kps = kps 
+        self.descs = descs
         return descs
     
 class BoWTransformer(BaseEstimator, TransformerMixin):
@@ -171,78 +176,124 @@ class BoWTransformer(BaseEstimator, TransformerMixin):
         
         return bows
 
+# export HSA_OVERRIDE_GFX_VERSION=10.3.0 this code is required for this to work with AMD
+
 class SKlearnPyTorchClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self, net_cls: nn.Module, convs: int = 1,
-                 optimizer_cls = optim.SGD,
+    def __init__(self, net_cls: nn.Module, net_kwargs: dict = {}, 
+                 optimizer_cls = optim.SGD, optimizer_kwargs: dict = {},
                  criterion=nn.CrossEntropyLoss(),
-                 epochs=10, batch_size=32, lr=1e-3, momentum=0.9, device=0):
+                 epochs=10, batch_size=32, device='cpu',
+                 transform = None, image_size: tuple[int, int] = (32, 32)):
         
         self.net_cls = net_cls
-        self.convs = convs 
+        self.net_kwargs = net_kwargs
         self.optimizer_cls = optimizer_cls
-        self.momentum = momentum
+        self.optimizer_kwargs = optimizer_kwargs
         self.criterion = criterion
         self.epochs = epochs
         self.batch_size = batch_size
-        self.lr = lr
+        self.transform = transform
+        self.image_size = image_size
+        
         if not device:
-            self.device = 'cuda' if torch.cuda.is_available() else 'mps'
+            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else: 
             self.device = device
     
+    def set_params(self, **params):
+        net_kwargs = {k.split("__", 1)[1]:v for k, v in params.items() if k.startswith('net__')}
+        optim_kwargs = {k.split("__", 1)[1]:v for k, v in params.items() if k.startswith('optim__')}
+
+        if net_kwargs: self.net_kwargs = {**getattr(self, "net_kwargs", {}), **net_kwargs}
+        if optim_kwargs: self.optim_kwargs = {**getattr(self, "optim_kwargs", {}), **optim_kwargs}
+
+        super().set_params(**{k:v for k,v in params.items() if "__" not in k})
+        self.net_kwargs['img_size'] = self.image_size
+        return self
+
+    def _load_dataset(self, X, y):
+        dataset = ImagesDataset(X, y, transform=self.transform) 
+        return dataset
+
+    def _cleanup_gpu(self):
+        if hasattr(self, "model"):
+            self.model.to("cpu")
+            torch.cuda.empty_cache()
+            torch.cuda.empty_cache()
+
     def _build(self):
 
-        self.model = self.net_cls(self.convs).to(self.device)
+        self.model = self.net_cls(**self.net_kwargs).to(self.device)
         self.optimizer = self.optimizer_cls(
             self.model.parameters(),
-            lr = self.lr,
-            momentum=self.momentum
+            **self.optimizer_kwargs,
         )
-    
+
     def fit(self, X, y): 
         self._build()
-        X_tensor = torch.tensor(X).permute(0, 3, 1, 2).float().to(self.device)
-        y_tensor = torch.tensor(y).long().to(self.device)
-        ds = TensorDataset(X_tensor, y_tensor)
+
+        print(self.net_kwargs, 
+              self.optim_kwargs,
+              )
+
+        ds = self._load_dataset(X, y) 
         loader = DataLoader(ds, batch_size=self.batch_size, shuffle=True)
-
         self.model.train()
+        print(f'Training model for epochs: {self.epochs}') 
         for epoch in range(self.epochs):
-
-            if epoch % 2 == 0:
-                print('Epoch: ', epoch)
-            for xb, yb in loader:
+            all_labels = [] 
+            cumulative_loss = 0
+            for i, (xb, yb) in enumerate(loader):
+                xb = xb.to(self.device, non_blocking=True)
+                yb = yb.to(self.device, non_blocking=True)
                 self.optimizer.zero_grad()
                 out = self.model(xb)
-                loss = self.criterion(out, yb) 
+                loss = self.criterion(out, yb)
                 loss.backward()
                 self.optimizer.step()
-        
+                batch_loss = loss.detach().item() 
+                cumulative_loss += batch_loss
+                all_labels.append(yb.cpu())
+                
+            print(f'Cumulative Loss for Epoch: {epoch} of {self.epochs}: {cumulative_loss}')
+        self._cleanup_gpu()
         return self
 
     def predict(self, X):
         self.model.eval()
-        X_tensor = torch.tensor(X).permute(0, 3, 1, 2).float().to(self.device)
-        loader = DataLoader(X_tensor, batch_size=self.batch_size)
+        ds = self._load_dataset(X, None)
+        loader = DataLoader(ds, batch_size=self.batch_size)
+        
         all_preds = []
         with torch.no_grad():
             for xb in loader:
+                #TODO Bug report online suggested changing this to CPU fixed issue
+                xb = xb.to('cpu', non_blocking=True)
                 out = self.model(xb)
                 preds = out.argmax(dim=1).cpu().numpy()
                 all_preds.append(preds)
+
+        self._cleanup_gpu() 
         return np.concatenate(all_preds)
 
     def predict_proba(self, X):
         self.model.eval()
-        X_tensor = torch.tensor(X).permute(0, 3, 1, 2).float().to(self.device)
-        loader = DataLoader(X_tensor, batch_size=self.batch_size)
+        ds = self._load_dataset(X, None) 
+        loader = DataLoader(ds, batch_size=self.batch_size)
+        
         all_probs = []
         with torch.no_grad():
             for xb in loader:
+                xb = xb.to('cpu', non_blocking=True)
                 out = self.model(xb)
                 probs = F.softmax(out, dim=1).cpu().numpy()
                 all_probs.append(probs)
+        
+        self._cleanup_gpu()
         return np.concatenate(all_probs)
     
     def score(self, X, y):
-        return accuracy_score(y, self.predict(X)) 
+        preds = self.predict(X)
+        accuracy = accuracy_score(y, preds) 
+        print(f'accuracy {accuracy}')
+        return accuracy

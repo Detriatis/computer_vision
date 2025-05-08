@@ -1,0 +1,21 @@
+params,mean_test_score,std_test_score,norm_type,descriptor_algo,keypoints_algo,k,classifier,dataset,fullmodelaccuracy,index
+"OrderedDict({'max_depth': 25, 'min_samples_split': 11, 'n_estimators': 440})",0.4090317862772952,0.027553429435568,32,sift,dense,100.0,rf,stl10,0.41525,0
+"OrderedDict({'n_neighbors': 14, 'p': 1, 'weights': 'distance'})",0.3530027033021045,0.0031090093531744,eq_hist,sift,dense,200.0,knn,stl10,0.379125,1
+"OrderedDict({'max_depth': 32, 'min_samples_split': 3, 'n_estimators': 500})",0.3390036743330156,0.0161480067831983,32,dense_hist,dense,200.0,rf,stl10,0.378625,2
+"OrderedDict({'max_depth': 32, 'min_samples_split': 3, 'n_estimators': 486})",0.3379996763230296,0.0085848473594436,32,none,none,,rf,stl10,0.40075,3
+"OrderedDict({'max_depth': 25, 'min_samples_split': 11, 'n_estimators': 440})",0.314017610424796,0.0242782172530212,eq_hist,sift,sift,100.0,rf,stl10,0.329375,4
+"OrderedDict({'max_depth': 50, 'min_samples_split': 9, 'n_estimators': 291})",0.2920195644746543,0.0230121782563269,32,dense_hist,sift,100.0,rf,stl10,0.34075,5
+"OrderedDict({'n_neighbors': 10, 'p': 1, 'weights': 'distance'})",0.2880425335515156,0.0359071114934421,eq_hist,dense_hist,dense,50.0,knn,stl10,0.3075,6
+"OrderedDict({'n_neighbors': 26, 'p': 1, 'weights': 'distance'})",0.2799655943368518,0.0246049155431799,eq_hist,none,none,,knn,stl10,0.284125,7
+"OrderedDict({'n_neighbors': 133, 'p': 1, 'weights': 'distance'})",0.2650135165105225,0.0145976502677319,eq_hist,sift,sift,200.0,knn,stl10,0.31925,8
+"OrderedDict({'n_neighbors': 10, 'p': 1, 'weights': 'distance'})",0.2419874964785144,0.0161255254176974,eq_hist,dense_hist,sift,50.0,knn,stl10,0.27775,9
+"OrderedDict({'max_depth': 26, 'min_samples_split': 20, 'n_estimators': 468})",0.2199906052979516,0.0146281708105201,32,dense_hist,dense,100.0,rf,mammals,0.24980047885075818,10
+"OrderedDict({'n_neighbors': 94, 'p': 1, 'weights': 'distance'})",0.2029930980455717,0.0115211318004751,eq_hist,dense_hist,dense,200.0,knn,mammals,0.22186751795690343,11
+"OrderedDict({'max_depth': 42, 'min_samples_split': 2, 'n_estimators': 396})",0.2014878446662554,0.0184616883272045,32,dense_hist,sift,100.0,rf,mammals,0.2338387869114126,12
+"OrderedDict({'max_depth': 25, 'min_samples_split': 11, 'n_estimators': 440})",0.1960018489253871,0.0026854562844337,32,none,none,,rf,mammals,0.237829209896249,13
+"OrderedDict({'max_depth': 19, 'min_samples_split': 15, 'n_estimators': 421})",0.1880005942974458,0.0098290615452528,eq_hist,sift,dense,200.0,rf,mammals,0.20989624900239426,14
+"OrderedDict({'n_neighbors': 72, 'p': 1, 'weights': 'distance'})",0.1859873366619993,0.0179191206234975,eq_hist,dense_hist,sift,200.0,knn,mammals,0.21707901037509977,15
+"OrderedDict({'max_depth': 39, 'min_samples_split': 4, 'n_estimators': 341})",0.1729975852914383,0.0050147926171998,32,sift,sift,50.0,rf,mammals,0.1923383878691141,16
+"OrderedDict({'n_neighbors': 143, 'p': 1, 'weights': 'distance'})",0.171493082287685,0.0186803687689754,eq_hist,sift,dense,200.0,knn,mammals,0.19872306464485234,17
+"OrderedDict({'n_neighbors': 137, 'p': 1, 'weights': 'distance'})",0.1474990732861797,0.0017933483023658,eq_hist,sift,sift,50.0,knn,mammals,0.174780526735834,18
+"OrderedDict({'n_neighbors': 133, 'p': 1, 'weights': 'distance'})",0.1359973166569868,0.0066891933159997,eq_hist,none,none,,knn,mammals,0.14684756584197925,19

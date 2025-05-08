@@ -45,23 +45,34 @@ class Images:
         return result 
     
 class ImagesDataset(Dataset):
-    def __init__(self, imgs_obj: Images, transform=None, target_transform=None):
-        self.filepaths = imgs_obj.filepath
-        self.images = np.array([cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in imgs_obj.imgs])
-        self.labels = np.array(imgs_obj.labels) - 1
+    def __init__(self, X: np.array, y: np.array = None, transform=None, target_transform=None):
+        self.images = X 
         self.transform = transform
         self.target_transform = target_transform
+        self.labels = y
 
+        if self.labels is not None:
+            uniq = np.unique(y) 
+            self.lbl2idx = {lbl: i for i, lbl in enumerate(sorted(uniq))}
+            self.idx2lbl = {i: lbl for lbl, i in self.lbl2idx.items()}
+
+            self.labels = np.vectorize(self.lbl2idx.get)(y).astype(np.int64)
+    
     def __len__(self):
-        return len(self.labels)
+        return len(self.images)
     
     def __getitem__(self, idx):
         image = self.images[idx]
-        label = self.labels[idx]
-        filepath = self.filepaths[idx] 
+        
         if self.transform:
             image = self.transform(image)
+
+        if self.labels is None:
+            return image
+
+        label = self.labels[idx]
+
         if self.target_transform:
             label = self.target_transform(label) 
 
-        return image, label 
+        return image, label

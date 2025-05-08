@@ -27,6 +27,8 @@ for class_dir in SRC.iterdir():
         continue
     class_index[class_dir.name] = str(i)
     i += 1
+    if i > 21: 
+        break
 
     
     images = list(class_dir.glob('*'))  # all files in that class
