@@ -2,3 +2,5 @@ datasets/processed
 datasets/raw/
 *egg-info*
 *pycache*
+*cache_dir*
+build/
