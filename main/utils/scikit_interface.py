@@ -201,6 +201,11 @@ class SKlearnPyTorchClassifier(BaseEstimator, ClassifierMixin):
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else: 
             self.device = device
+        
+        self.history = {
+            'accuracy': [],
+            'batch_loss': []
+        }
     
     def set_params(self, **params):
         net_kwargs = {k.split("__", 1)[1]:v for k, v in params.items() if k.startswith('net__')}
@@ -256,28 +261,34 @@ class SKlearnPyTorchClassifier(BaseEstimator, ClassifierMixin):
                 batch_loss = loss.detach().item() 
                 cumulative_loss += batch_loss
                 all_labels.append(yb.cpu())
-                
+
+            self.history['batch_loss'].append(cumulative_loss) 
+            if hasattr(self.x_test, '__iter__') and hasattr(self.y_test, '__iter__'):
+                accuracy = self.score(self.x_test, self.y_test)
+                self.history['accuracy'].append(accuracy)
+        
             print(f'Cumulative Loss for Epoch: {epoch + 1} of {self.epochs}: {cumulative_loss}')
         
-        self._cleanup_gpu()
+        self._cleanup_gpu()        
         
         return self
 
     def predict(self, X):
         self.model.eval()
+        self.model.to(self.device)
+        
         ds = self._load_dataset(X, None)
         loader = DataLoader(ds, batch_size=self.batch_size)
-        
+       
         all_preds = []
         with torch.no_grad():
             for xb in loader:
                 #TODO Bug report online suggested changing this to CPU fixed issue
-                xb = xb.to('cpu', non_blocking=True)
+                xb = xb.to(self.device, non_blocking=True)
                 out = self.model(xb)
                 preds = out.argmax(dim=1).cpu().numpy()
                 all_preds.append(preds)
 
-        self._cleanup_gpu() 
         return np.concatenate(all_preds)
 
     def predict_proba(self, X):
@@ -288,12 +299,11 @@ class SKlearnPyTorchClassifier(BaseEstimator, ClassifierMixin):
         all_probs = []
         with torch.no_grad():
             for xb in loader:
-                xb = xb.to('cpu', non_blocking=True)
+                xb = xb.to(self.device, non_blocking=True)
                 out = self.model(xb)
                 probs = F.softmax(out, dim=1).cpu().numpy()
                 all_probs.append(probs)
         
-        self._cleanup_gpu()
         return np.concatenate(all_probs)
     
     def score(self, X, y):

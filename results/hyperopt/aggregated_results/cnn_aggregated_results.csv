@@ -1,9 +1,9 @@
 ,,,,mean_test_score
 ,,,,max
 dataset,norm_type,colour,classifier,
-mammals,32,greyscale,classic_cnn,0.1693758779851495
-mammals,32,rgb,classic_cnn,0.256271322496488
-mammals,32,rgb,split_cnn,0.4583584186233193
-stl10,32,greyscale,classic_cnn,0.4087956718380214
-stl10,32,rgb,classic_cnn,0.4329979142226777
-stl10,32,rgb,split_cnn,0.5812030871136696
+mammals,32,greyscale,classic_cnn,0.222155328115593
+mammals,32,rgb,classic_cnn,0.2933975516756973
+mammals,32,rgb,split_cnn,0.5711418824001605
+stl10,32,greyscale,classic_cnn,0.4710079592724912
+stl10,32,rgb,classic_cnn,0.478202198695915
+stl10,32,rgb,split_cnn,0.6451958107778205

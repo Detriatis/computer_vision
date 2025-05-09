@@ -32,17 +32,32 @@ def pipeline(clf, imgs: Images, row = None, bowtransformer = None, train: bool =
             if kp_algo != 'none':
                 k = int(row['k'])
        
-        else:
-            col = row['colour']
-            if str(col) == '6.0':
-                col = cv2.COLOR_BGR2GRAY
-            else: 
-                col = None 
+        else: 
             bowtransformer = None
             descriptorextractor = None 
             desc_algo = None
             kp_algo = None
-        
+         
+
+            colour = row['colour']
+            
+            if str(colour) != 'rgb':
+                col = cv2.COLOR_BGR2GRAY
+                norm_tuple = (0.5)
+            else: 
+                col = None 
+                norm_tuple = (0.5, 0.5, 0.5)
+    
+    
+    image_resize = (96, 96) 
+    transform = transforms.Compose(
+                [transforms.ToTensor(),
+                transforms.Normalize(norm_tuple, norm_tuple),
+                transforms.Resize(image_resize)]
+            )
+    
+    if isinstance(clf, SKlearnPyTorchClassifier):
+        clf.transform = transform
      
     imagenormalizer = ImageNormalizer(norm_type=norm, alpha=0, beta=255, dtype=np.uint8, col=col).fit(imgs.imgs)
     X = imagenormalizer.transform(X)
@@ -68,7 +83,10 @@ def pipeline(clf, imgs: Images, row = None, bowtransformer = None, train: bool =
         bows = np.array(X)
 
     if test_imgs:
-        clf.x_test = x_test 
+        if col == cv2.COLOR_BGR2GRAY:
+            x_test = np.expand_dims(np.array(x_test), -1)
+        
+        clf.x_test = x_test
         clf.y_test  = np.array(test_imgs.labels)
     
     if train:
@@ -93,25 +111,17 @@ if __name__ == '__main__':
     INPUTPATH = Path("/home/michaeldodds/Projects/manchester/computer_vision/results/hyperopt/aggregated_results/")
     RESULTPATH = Path("/home/michaeldodds/Projects/manchester/computer_vision/results/")
     
-    norm_tuple = (0.5, 0.5, 0.5)
-    image_resize = (96, 96) 
-    
-    transform = transforms.Compose(
-                [transforms.ToTensor(),
-                transforms.Normalize(norm_tuple, norm_tuple),
-                transforms.Resize(image_resize)]
-            )
     classifiers = {
             'rf' : RandomForestClassifier(),
             'knn' : KNeighborsClassifier(),
-            'split_cnn' : SKlearnPyTorchClassifier(NetSmaller, device='cuda', transform=transform, image_size = (96, 96)),
-            'classic_cnn' : SKlearnPyTorchClassifier(Net, device='cuda', transform=transform, image_size = (96, 96)),
+            'split_cnn' : SKlearnPyTorchClassifier(NetSmaller, device='cuda', image_size = (96, 96)),
+            'classic_cnn' : SKlearnPyTorchClassifier(Net, device='cuda', image_size = (96, 96)),
     }
     
     accuracy = get_sklearn_metric('accuracy')
     
     test_bool = False 
-    quick_test = True 
+    quick_test = False 
     
     feature_params = {} 
     norm_params = {} 
@@ -125,27 +135,29 @@ if __name__ == '__main__':
         print(row)
         directory = row['dataset'] 
         
-        imgs = load_directory_images(DIRECTORYPATH / directory, train=True)
-        test_imgs = load_directory_images(DIRECTORYPATH / directory, train=False)
+        imgs = load_directory_images(DIRECTORYPATH / directory, train=True, subsample=0)
+        test_imgs = load_directory_images(DIRECTORYPATH / directory, train=False, subsample=0)
 
         accuracy = get_sklearn_metric('accuracy')
-        
+
+        # Classifier SETUP 
         classifier = row['classifier']  
         if str(classifier).endswith('cnn'):
             imgs.labels = np.array(imgs.labels) - 1
             test_imgs.labels = np.array(test_imgs.labels) - 1
-
         classifier_params =  eval(row['params'], {'OrderedDict' : OrderedDict})
-
-        clf = classifiers[classifier]
+        clf = classifiers[classifier] 
         if quick_test:
-            classifier_params['epochs'] = 1
+            classifier_params['epochs'] = 3
         clf = clf.set_params(**classifier_params)        
         
         if not test_bool:
             # TRAINING AND FITTING ---- 
             clf, train_preds, bowtransformer, _ = pipeline(clf, imgs, row, train=True, test_imgs=test_imgs)    
             clf, test_preds, _, descriptorextractor =  pipeline(clf, test_imgs, row, bowtransformer=bowtransformer, train=False)
+            
+            if isinstance(clf, SKlearnPyTorchClassifier):
+                history = clf.history
 
             if descriptorextractor:
                 kps_list = descriptorextractor.kps
@@ -173,7 +185,10 @@ if __name__ == '__main__':
             outpath = Path('/home/michaeldodds/Projects/manchester/computer_vision/results/fullmodel', f'{classifier}_{str(i)}')
             outpath.mkdir(parents=True, exist_ok=True)
             results_df.to_csv(outpath / 'cnn_class_accuracy.csv', index=False)
+            
+            pd.DataFrame(history).to_csv(outpath / 'cnn_training_history.csv', index=False)
             np.savetxt(outpath / "confusion_matrix.csv", cm, delimiter=",") 
+
         if quick_test:
             break 
 

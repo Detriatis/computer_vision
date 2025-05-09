@@ -44,6 +44,7 @@ class Net(nn.Module):
             nn.MaxPool2d(2, 2),
 
         )
+        print('Net initialised', channels, kernel_width, class_heads, img_size)
         if isinstance(img_size, int):
             img_size = (img_size, img_size)
         with torch.no_grad():
