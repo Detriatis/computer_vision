@@ -2,9 +2,9 @@ from main.utils.image_loading import load_image, load_labeled_images, load_direc
 import cv2
 from pathlib import Path
 
-TESTFILE = "/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/mammals/train/2/red_panda-0001.jpg"
-TESTCLASSDIR = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/cifar-10/train/1")
-TESTIMGDIR = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/cifar-10/train/")
+TESTFILE = "/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/mammals/train/2/red_panda-0001.jpg"
+TESTCLASSDIR = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/cifar-10/train/1")
+TESTIMGDIR = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/cifar-10/train/")
 
 def test_image_loading(img = None):
     img = load_image(TESTFILE)

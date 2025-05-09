@@ -50,7 +50,7 @@ def save_image_files(srcpath, directorypath, ids, files, ele_mappings):
 
 
 # Paths to directories 
-DATASETS = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/")
+DATASETS = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/")
 ELPEPHANT_DIR = DATASETS / 'raw/ELPephant'
 IMAGES = ELPEPHANT_DIR / 'images'
 PROCESSED_ELPEPHANT = DATASETS /'processed/ELPephant'

@@ -20,7 +20,7 @@ def image(array):
     img_array = np.stack([b, g, r], axis=2)
     return img_array
 
-dataset_path = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/")
+dataset_path = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/")
 filepath = dataset_path / "raw/cifar-10-batches-py"
     
 
@@ -30,7 +30,7 @@ labelling_dic = {id + 1: name for id, name in enumerate(meta_file['label_names']
 print(labelling_dic)
 
 output_dir = Path(
-    "/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/cifar-10/"
+    "/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/cifar-10/"
 )
 
 if not output_dir.is_dir():

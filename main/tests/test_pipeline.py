@@ -2,7 +2,7 @@ from main.utils.image_loading import load_image
 import matplotlib.pyplot as plt
 import cv2
 
-TEST_IMAGE = "/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/cifar-10/train/1/aeroplane_s_000004.png"
+TEST_IMAGE = "/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/cifar-10/train/1/aeroplane_s_000004.png"
 
 if __name__ == "__main__":
     img = load_image(TEST_IMAGE) 

@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 if __name__ == '__main__':
-    directorypath = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/cifar-10/train/1")
+    directorypath = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/cifar-10/train/1")
     parameters = {'normaliser': {'alpha': 0, 'beta': 255, 'norm_type': cv2.NORM_MINMAX},
                   'detector': {'nfeatures': 1000}} 
     

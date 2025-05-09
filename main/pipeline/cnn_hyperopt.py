@@ -161,7 +161,7 @@ nets = [
     NetSmaller,
 ]
 
-DIRECTORYPATH = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/")
+DIRECTORYPATH = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/")
 colours = [False, True]
 image_resize = (96, 96)
 directories = ['stl10', 'mammals']
@@ -247,7 +247,7 @@ if __name__ == '__main__':
                         result_df['classifier'] = 'split_cnn'
 
                     print(f'SAVING DATA iteration {i} of {iterations_total}')             
-                    iterative_path = Path("/home/michaeldodds/Projects/manchester/computer_vision/results/hyperopt")
+                    iterative_path = Path("/home/REDACTED/Projects/manchester/computer_vision/results/hyperopt")
                     iterative_path  = iterative_path / 'cnn_iterative_experiments3.csv'
                     if iterative_path.exists():
                         df = pd.read_csv(iterative_path)

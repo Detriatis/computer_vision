@@ -107,9 +107,9 @@ def class_label_assigments(labels, kps, accuracy_scores):
 
 if __name__ == '__main__':
     
-    DIRECTORYPATH  = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/")
-    INPUTPATH = Path("/home/michaeldodds/Projects/manchester/computer_vision/results/hyperopt/aggregated_results/")
-    RESULTPATH = Path("/home/michaeldodds/Projects/manchester/computer_vision/results/")
+    DIRECTORYPATH  = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/")
+    INPUTPATH = Path("/home/REDACTED/Projects/manchester/computer_vision/results/hyperopt/aggregated_results/")
+    RESULTPATH = Path("/home/REDACTED/Projects/manchester/computer_vision/results/")
     
     classifiers = {
             'rf' : RandomForestClassifier(),
@@ -182,7 +182,7 @@ if __name__ == '__main__':
             rows.append(row)
 
 
-            outpath = Path('/home/michaeldodds/Projects/manchester/computer_vision/results/fullmodel', f'{classifier}_{str(i)}')
+            outpath = Path('/home/REDACTED/Projects/manchester/computer_vision/results/fullmodel', f'{classifier}_{str(i)}')
             outpath.mkdir(parents=True, exist_ok=True)
             results_df.to_csv(outpath / 'cnn_class_accuracy.csv', index=False)
             

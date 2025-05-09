@@ -3,11 +3,11 @@ from pathlib import Path
 from sklearn.model_selection import train_test_split
 import pickle
 
-DATASETS = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets")
+DATASETS = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets")
 RAW_DATASETS = DATASETS / 'raw'
 M_RAW_DATASETS = RAW_DATASETS / 'mammals-image-classification-dataset-45-animals/versions/1/mammals'
 # Paths
-BASE = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/mammals")
+BASE = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/mammals")
 SRC  =  M_RAW_DATASETS 
 DST_TRAIN = BASE / 'train'
 DST_TEST  = BASE / 'test'

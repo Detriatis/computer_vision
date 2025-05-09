@@ -28,7 +28,7 @@ DEPTH = 3
 SIZE = HEIGHT * WIDTH * DEPTH
 
 # path to the directory with the data
-DATA_DIR = Path('/home/michaeldodds/Projects/manchester/computer_vision/datasets/raw/stl10/data/stl10_binary')
+DATA_DIR = Path('/home/REDACTED/Projects/manchester/computer_vision/datasets/raw/stl10/data/stl10_binary')
 
 # path to the binary train file with image data
 TRAIN_DATA_PATH = DATA_DIR / 'train_X.bin'
@@ -43,7 +43,7 @@ TEST_DATA_PATH = DATA_DIR / 'test_X.bin'
 TEST_LABEL_PATH = DATA_DIR / 'test_y.bin'
 
 # path to the output file for images 
-OUTPUT_DIR = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/stl10")
+OUTPUT_DIR = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/stl10")
 
 def read_labels(path_to_labels):
     """

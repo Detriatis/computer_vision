@@ -12,7 +12,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch import nn
 
-CIFAR10 = "/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/cifar-10/"
+CIFAR10 = "/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/cifar-10/"
 
 trainimgs = load_directory_images(CIFAR10, True)
 testimgs = load_directory_images(CIFAR10, False)

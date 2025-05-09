@@ -59,9 +59,9 @@ def pipeline(clf, imgs: Images, row = None, bowtransformer = None, train: bool =
     return clf, preds, bowtransformer, descriptorextractor 
 
 DATA_PARAMETERS  = {
-    'directorypath': Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/"),
-    'bestclassifierpath': "/home/michaeldodds/Projects/manchester/computer_vision/results/hyperopt/aggregated_results/cv_best_classifiers.csv",
-    'writeoutpath': "/home/michaeldodds/Projects/manchester/computer_vision/results/"
+    'directorypath': Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/"),
+    'bestclassifierpath': "/home/REDACTED/Projects/manchester/computer_vision/results/hyperopt/aggregated_results/cv_best_classifiers.csv",
+    'writeoutpath': "/home/REDACTED/Projects/manchester/computer_vision/results/"
                     }
 
 classifiers = {
@@ -116,7 +116,7 @@ if __name__ == '__main__':
             rows.append(row)
 
 
-            outpath = Path('/home/michaeldodds/Projects/manchester/computer_vision/results/fullmodel', f'{classifier}_{str(i)}')
+            outpath = Path('/home/REDACTED/Projects/manchester/computer_vision/results/fullmodel', f'{classifier}_{str(i)}')
             outpath.mkdir(parents=True, exist_ok=True)
             results_df.to_csv(outpath / 'class_accuracy.csv', index=False)
             np.savetxt(outpath / "confusion_matrix.csv", cm, delimiter=",")    

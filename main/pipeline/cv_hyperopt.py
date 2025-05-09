@@ -83,8 +83,8 @@ search_space = {
 directories = ['mammals', 'stl10'] 
 for dir in directories:
     print(dir)
-    DIRECTORYPATH = Path("/home/michaeldodds/Projects/manchester/computer_vision/datasets/processed/") / dir
-    WRITEOUTPATH = "/home/michaeldodds/Projects/manchester/computer_vision/results"
+    DIRECTORYPATH = Path("/home/REDACTED/Projects/manchester/computer_vision/datasets/processed/") / dir
+    WRITEOUTPATH = "/home/REDACTED/Projects/manchester/computer_vision/results"
 
     imgs = load_directory_images(DIRECTORYPATH, train = True, subsample=100) 
     X = imgs.imgs
